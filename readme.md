@@ -1,5 +1,10 @@
 # hs 语言
 
+<a href="https://www.npmjs.com/package/h-script"><img src="https://img.shields.io/npm/v/h-script.svg" alt="Version"></a>
+<a href="https://npmcharts.com/compare/h-script?minimal=true"><img src="https://img.shields.io/npm/dm/h-script.svg" alt="Downloads"></a>
+<a href="https://github.com/18023785187/h-script/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/h-script.svg" alt="License"></a>
+<a href="https://github.com/18023785187/h-script/search?l=javascript"><img src="https://img.shields.io/github/languages/top/18023785187/h-script.svg" alt="TopLang"></a>
+
 #### 介绍
 
 hs 使用 LL1 文法实现，特点是类似 python 的语法。
@@ -8,7 +13,7 @@ hs 使用 LL1 文法实现，特点是类似 python 的语法。
 
 拉取项目后执行 `npm link`，在需要运行的 `.hs` 后缀文件的目录下执行 `hs xxx.hs` 即可。
 
-或 `npm i hs -g` 下载项目，直接运行 `hs xxx.hs`。
+或 `npm i h-script -g` 下载项目，直接运行 `hs xxx.hs`。
 
 #### 特性
 
