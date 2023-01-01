@@ -2,8 +2,8 @@
 
 <a href="https://www.npmjs.com/package/hym-script"><img src="https://img.shields.io/npm/v/hym-script.svg" alt="Version"></a>
 <a href="https://npmcharts.com/compare/hym-script?minimal=true"><img src="https://img.shields.io/npm/dm/hym-script.svg" alt="Downloads"></a>
-<a href="https://github.com/18023785187/hym-script/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/hym-script.svg" alt="License"></a>
-<a href="https://github.com/18023785187/hym-script/search?l=javascript"><img src="https://img.shields.io/github/languages/top/18023785187/hym-script.svg" alt="TopLang"></a>
+<a href="https://github.com/18023785187/hs/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/hs.svg" alt="License"></a>
+<a href="https://github.com/18023785187/hs/search?l=javascript"><img src="https://img.shields.io/github/languages/top/18023785187/hs.svg" alt="TopLang"></a>
 
 #### 介绍
 
