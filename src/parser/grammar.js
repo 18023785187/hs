@@ -15,8 +15,10 @@ const grammars =
   `ArithmeticExpression2      ->  UnaryExpression ArithmeticExpression2'`,
   `ArithmeticExpression2'     ->  Operator2 ArithmeticExpression2 $binaryExpression | null`,
   `UnaryExpression            ->  Operator1 Variable $unaryExpression | Variable | not Variable $unaryExpression`,
-  `Variable                   ->  identifier Variable' | literal | leftBracket BinaryExpression rightBracket`,
-  `Variable'                  ->  Call | null`,
+  `Variable                   ->  identifier Variable' | literal | leftBracket BinaryExpression rightBracket | Array Variable'`,
+  `Variable'                  ->  ArrayMember Variable''' | CallFunc | null`,
+  `Variable''                 ->  ArrayMember | null`,
+  `Variable'''                ->  CallFunc | null`,
   `LogicalExpression          ->  or ArithmeticExpression1 $logicalExpression | and ArithmeticExpression1 $logicalExpression | congruent ArithmeticExpression1 $binaryExpression`,
   `ComparisonExpression       ->  greater ArithmeticExpression1 $binaryExpression |
                                   greaterEqual ArithmeticExpression1 $binaryExpression | 
@@ -26,18 +28,27 @@ const grammars =
   `Operator2                  ->  multiply | divide | surplus`,
   // 声明 def id; def id = 1;
   `Defined                    ->  defined identifier Defined'`,
-  `Defined'                   ->  equal Defined'' $createVariableDeclaratorInit Defined''' | $createVariableDeclarator null`,
-  `Defined''                  ->  BinaryExpression | Function | Condition | Circulation | Block`,
-  `Defined'''                 ->  comma identifier Defined' | null`,
+  `Defined'                   ->  equal Value $createVariableDeclaratorInit Defined'' | $createVariableDeclarator null`,
+  `Defined''                  ->  comma identifier Defined' | null`,
   // 赋值
-  `Assignment                 ->  identifier Assignment'`,
-  `Assignment'                ->  equal Assignment'' $mergeAssignment $expressionStatement | Call $expressionStatement | null`,
-  `Assignment''               ->  BinaryExpression | Function | Condition | Circulation | Block`,
+  `Assignment                 ->  identifier Assignment'' Assignment'`,
+  `Assignment'                ->  equal Value $mergeAssignment $expressionStatement | CallFunc $expressionStatement | null`,
+  `Assignment''               ->  ArrayMember | null`,
   `Call                       ->  $createCall leftBracket Call' rightBracket $updateCallInfo`,
   `Call'                      ->  CallParams $mergeCallParam Call'' | null`,
   `Call''                     ->  comma CallParams $mergeCallParam Call'' | null`,
   `CallParams                 ->  BinaryExpression | Function`,
-  // 方法声明 func fn(): func fn(args1, aegs2);
+  `CallFunc                   ->  Call CallFunc'`,
+  `CallFunc'                  ->  Call CallFunc' | null`,
+  `Value                      ->  BinaryExpression | Function | Condition | Circulation | Block`,
+  // 数组
+  `Array                      ->  leftBrace Array' rightBrace`,
+  `Array'                     ->  BinaryExpression $mergeArray Array'' | Function $mergeArray Array'' | null`,
+  `Array''                    ->  comma Array''' | null`,
+  `Array'''                   ->  BinaryExpression $mergeArray Array'' | Function $mergeArray Array''`,
+  `ArrayMember                ->  leftBrace $createMemberExpression BinaryExpression $mergeMember rightBrace ArrayMember'`,
+  `ArrayMember'               ->  ArrayMember | null`,
+  // 方法声明 func fn(): func fn(args1, args2);
   `Function                   ->  function identifier $mergeFunctionId Params Colon SingleBlock $mergeFunctionBody`,
   `Params                     ->  leftBracket Params' rightBracket`,
   `Params'                    ->  identifier $mergeFunctionParam Params'' | null`,
@@ -66,10 +77,10 @@ const grammars =
   `SingleBlock                ->  Block | BinaryExpression | Function | pass | break SingleBlock' $mergeReturn | continue`,
   `SingleBlock'               ->  BinaryExpression | null`,
   // 单终结符
-  `Colon                      ->  colon`
+  `Colon                      ->  colon`,
 ];
 const terminalSymbols =
-  'defined|identifier|equal|congruent|semicolon|leftBracket|rightBracket|literal|plus|minus|multiply|divide|surplus|function|begin|end|return|comma|colon|if|elif|else|or|and|not|greater|greaterEqual|less|lessEqual|pass|for|while|break|continue'
+  'defined|identifier|equal|congruent|semicolon|leftBracket|rightBracket|literal|plus|minus|multiply|divide|surplus|function|begin|end|return|comma|colon|if|elif|else|or|and|not|greater|greaterEqual|less|lessEqual|pass|for|while|break|continue|leftBrace|rightBrace'
     .split('|');
 
 const ll1 = makeLL1(grammars, terminalSymbols);

@@ -504,6 +504,41 @@ export function $mergeForBody(astList) {
   astList.splice(startIndex + 1, 1)
 }
 
+export function _leftBrace({ source, location }) {
+  return {
+    type: AstType['ArrayExpression'],
+    source,
+    location,
+    elements: []
+  }
+}
+
+export function $mergeArray(astList) {
+  const startIndex = astList.length - 2
+  const array = astList[startIndex]
+  array.elements.push(astList.pop())
+}
+
+export function $createMemberExpression(astList) {
+  astList.pop()
+  const id = astList.pop()
+
+  const ast = {
+    type: AstType['MemberExpression'],
+    ...mergeTokenInfo(id),
+    object: id,
+    property: null
+  }
+  astList.push(ast)
+}
+
+export function $mergeMember(astList) {
+  const startIndex = astList.length - 2
+  const member = astList[startIndex]
+
+  member.property = astList.pop()
+}
+
 // utils
 function mergeTokenInfo(...asts) {
   let prevSource = asts[0].source

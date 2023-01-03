@@ -876,11 +876,13 @@ __webpack_require__.d(constructor_namespaceObject, {
   "$appendBlock": () => ($appendBlock),
   "$binaryExpression": () => ($binaryExpression),
   "$createCall": () => ($createCall),
+  "$createMemberExpression": () => ($createMemberExpression),
   "$createVariableDeclarator": () => ($createVariableDeclarator),
   "$createVariableDeclaratorInit": () => ($createVariableDeclaratorInit),
   "$expressionStatement": () => ($expressionStatement),
   "$logicalExpression": () => ($logicalExpression),
   "$mergeAlternate": () => ($mergeAlternate),
+  "$mergeArray": () => ($mergeArray),
   "$mergeAssignment": () => ($mergeAssignment),
   "$mergeCallParam": () => ($mergeCallParam),
   "$mergeForBody": () => ($mergeForBody),
@@ -892,6 +894,7 @@ __webpack_require__.d(constructor_namespaceObject, {
   "$mergeFunctionParam": () => ($mergeFunctionParam),
   "$mergeIfConsequent": () => ($mergeIfConsequent),
   "$mergeIfTest": () => ($mergeIfTest),
+  "$mergeMember": () => ($mergeMember),
   "$mergeReturn": () => ($mergeReturn),
   "$mergeWhileBody": () => ($mergeWhileBody),
   "$mergeWhileTest": () => ($mergeWhileTest),
@@ -913,6 +916,7 @@ __webpack_require__.d(constructor_namespaceObject, {
   "_greaterEqual": () => (_greaterEqual),
   "_identifier": () => (_identifier),
   "_if": () => (constructor_if),
+  "_leftBrace": () => (_leftBrace),
   "_less": () => (_less),
   "_lessEqual": () => (_lessEqual),
   "_literal": () => (_literal),
@@ -1346,6 +1350,10 @@ var _Initialize, _chars, _zero, _number, _decimals, _def, _def2, _def3, _readOrR
   state: 'greaterWrite'
 }), _defineProperty(_Initialize, '<', {
   state: 'lessWrite'
+}), _defineProperty(_Initialize, '{', {
+  state: 'leftBrace'
+}), _defineProperty(_Initialize, '}', {
+  state: 'rightBrace'
 }), _defineProperty(_Initialize, blank, {
   state: Initialize
 }), _Initialize)), _defineProperty(_Initialize$chars$zer, 'chars', (_chars = {}, _defineProperty(_chars, chars + number, {
@@ -1910,6 +1918,12 @@ var _Initialize, _chars, _zero, _number, _decimals, _def, _def2, _def3, _readOrR
 })), _defineProperty(_Initialize$chars$zer, 'comma', _defineProperty({}, Else, {
   state: 'comma',
   isTerminate: true
+})), _defineProperty(_Initialize$chars$zer, 'leftBrace', _defineProperty({}, Else, {
+  state: 'leftBrace',
+  isTerminate: true
+})), _defineProperty(_Initialize$chars$zer, 'rightBrace', _defineProperty({}, Else, {
+  state: 'rightBrace',
+  isTerminate: true
 })), _defineProperty(_Initialize$chars$zer, 'pound', {
   '>': {
     state: 'comment'
@@ -1981,6 +1995,8 @@ var AstType = {
   'BinaryExpression': 'BinaryExpression',
   'AssignmentExpression': 'AssignmentExpression',
   "CallExpression": "CallExpression",
+  "ArrayExpression": 'ArrayExpression',
+  'MemberExpression': 'MemberExpression',
   // Statement
   'ExpressionStatement': 'ExpressionStatement',
   "BlockStatement": "BlockStatement",
@@ -2510,6 +2526,37 @@ function $mergeForBody(astList) {
   forStatement.body = body;
   astList.splice(startIndex + 1, 1);
 }
+function _leftBrace(_ref26) {
+  var source = _ref26.source,
+    location = _ref26.location;
+  return {
+    type: AstType.ArrayExpression,
+    source: source,
+    location: location,
+    elements: []
+  };
+}
+function $mergeArray(astList) {
+  var startIndex = astList.length - 2;
+  var array = astList[startIndex];
+  array.elements.push(astList.pop());
+}
+function $createMemberExpression(astList) {
+  astList.pop();
+  var id = astList.pop();
+  var ast = _objectSpread(_objectSpread({
+    type: AstType.MemberExpression
+  }, mergeTokenInfo(id)), {}, {
+    object: id,
+    property: null
+  });
+  astList.push(ast);
+}
+function $mergeMember(astList) {
+  var startIndex = astList.length - 2;
+  var member = astList[startIndex];
+  member.property = astList.pop();
+}
 
 // utils
 function mergeTokenInfo() {
@@ -2611,16 +2658,17 @@ var Parser = /*#__PURE__*/function () {
 ;// CONCATENATED MODULE: ./src/parser/grammar.js
 
 var grammars = ["Sentence                   ->  SingleStatement Semicolon Sentence | null", "SingleStatement            ->  Defined | Block | Function | Condition | Circulation | Assignment", "Semicolon                  ->  SingleSemicolon Semicolon'", "Semicolon'                 ->  SingleSemicolon Semicolon' | null", "SingleSemicolon            ->  semicolon", // 表达式 id; 1; 1+1; 1>2; 1 and 2; 1 or 2; not 2; a+b; -1;
-"BinaryExpression           ->  ArithmeticExpression1 BinaryExpression' $expressionStatement", "BinaryExpression'          ->  LogicalExpression BinaryExpression' | ComparisonExpression BinaryExpression' | null", "ArithmeticExpression1      ->  ArithmeticExpression2 ArithmeticExpression1'", "ArithmeticExpression1'     ->  Operator1 ArithmeticExpression2 $binaryExpression ArithmeticExpression1' | null", "ArithmeticExpression2      ->  UnaryExpression ArithmeticExpression2'", "ArithmeticExpression2'     ->  Operator2 ArithmeticExpression2 $binaryExpression | null", "UnaryExpression            ->  Operator1 Variable $unaryExpression | Variable | not Variable $unaryExpression", "Variable                   ->  identifier Variable' | literal | leftBracket BinaryExpression rightBracket", "Variable'                  ->  Call | null", "LogicalExpression          ->  or ArithmeticExpression1 $logicalExpression | and ArithmeticExpression1 $logicalExpression | congruent ArithmeticExpression1 $binaryExpression", "ComparisonExpression       ->  greater ArithmeticExpression1 $binaryExpression |\n                                  greaterEqual ArithmeticExpression1 $binaryExpression | \n                                  less ArithmeticExpression1 $binaryExpression | \n                                  lessEqual ArithmeticExpression1 $binaryExpression", "Operator1                  ->  plus | minus", "Operator2                  ->  multiply | divide | surplus", // 声明 def id; def id = 1;
-"Defined                    ->  defined identifier Defined'", "Defined'                   ->  equal Defined'' $createVariableDeclaratorInit Defined''' | $createVariableDeclarator null", "Defined''                  ->  BinaryExpression | Function | Condition | Circulation | Block", "Defined'''                 ->  comma identifier Defined' | null", // 赋值
-"Assignment                 ->  identifier Assignment'", "Assignment'                ->  equal Assignment'' $mergeAssignment $expressionStatement | Call $expressionStatement | null", "Assignment''               ->  BinaryExpression | Function | Condition | Circulation | Block", "Call                       ->  $createCall leftBracket Call' rightBracket $updateCallInfo", "Call'                      ->  CallParams $mergeCallParam Call'' | null", "Call''                     ->  comma CallParams $mergeCallParam Call'' | null", "CallParams                 ->  BinaryExpression | Function", // 方法声明 func fn(): func fn(args1, aegs2);
+"BinaryExpression           ->  ArithmeticExpression1 BinaryExpression' $expressionStatement", "BinaryExpression'          ->  LogicalExpression BinaryExpression' | ComparisonExpression BinaryExpression' | null", "ArithmeticExpression1      ->  ArithmeticExpression2 ArithmeticExpression1'", "ArithmeticExpression1'     ->  Operator1 ArithmeticExpression2 $binaryExpression ArithmeticExpression1' | null", "ArithmeticExpression2      ->  UnaryExpression ArithmeticExpression2'", "ArithmeticExpression2'     ->  Operator2 ArithmeticExpression2 $binaryExpression | null", "UnaryExpression            ->  Operator1 Variable $unaryExpression | Variable | not Variable $unaryExpression", "Variable                   ->  identifier Variable' | literal | leftBracket BinaryExpression rightBracket | Array Variable'", "Variable'                  ->  ArrayMember Variable''' | CallFunc | null", "Variable''                 ->  ArrayMember | null", "Variable'''                ->  CallFunc | null", "LogicalExpression          ->  or ArithmeticExpression1 $logicalExpression | and ArithmeticExpression1 $logicalExpression | congruent ArithmeticExpression1 $binaryExpression", "ComparisonExpression       ->  greater ArithmeticExpression1 $binaryExpression |\n                                  greaterEqual ArithmeticExpression1 $binaryExpression | \n                                  less ArithmeticExpression1 $binaryExpression | \n                                  lessEqual ArithmeticExpression1 $binaryExpression", "Operator1                  ->  plus | minus", "Operator2                  ->  multiply | divide | surplus", // 声明 def id; def id = 1;
+"Defined                    ->  defined identifier Defined'", "Defined'                   ->  equal Value $createVariableDeclaratorInit Defined'' | $createVariableDeclarator null", "Defined''                  ->  comma identifier Defined' | null", // 赋值
+"Assignment                 ->  identifier Assignment'' Assignment'", "Assignment'                ->  equal Value $mergeAssignment $expressionStatement | CallFunc $expressionStatement | null", "Assignment''               ->  ArrayMember | null", "Call                       ->  $createCall leftBracket Call' rightBracket $updateCallInfo", "Call'                      ->  CallParams $mergeCallParam Call'' | null", "Call''                     ->  comma CallParams $mergeCallParam Call'' | null", "CallParams                 ->  BinaryExpression | Function", "CallFunc                   ->  Call CallFunc'", "CallFunc'                  ->  Call CallFunc' | null", "Value                      ->  BinaryExpression | Function | Condition | Circulation | Block", // 数组
+"Array                      ->  leftBrace Array' rightBrace", "Array'                     ->  BinaryExpression $mergeArray Array'' | Function $mergeArray Array'' | null", "Array''                    ->  comma Array''' | null", "Array'''                   ->  BinaryExpression $mergeArray Array'' | Function $mergeArray Array''", "ArrayMember                ->  leftBrace $createMemberExpression BinaryExpression $mergeMember rightBrace ArrayMember'", "ArrayMember'               ->  ArrayMember | null", // 方法声明 func fn(): func fn(args1, args2);
 "Function                   ->  function identifier $mergeFunctionId Params Colon SingleBlock $mergeFunctionBody", "Params                     ->  leftBracket Params' rightBracket", "Params'                    ->  identifier $mergeFunctionParam Params'' | null", "Params''                   ->  comma identifier $mergeFunctionParam Params'' | null", // 块级作用域 begin end; begin return end;
 "Block                      ->  begin $appendBlock Sentence Block'", "Block'                     ->  end $popBlock | return Block'' | break Block'' | continue Block'''", "Block''                    ->  BinaryExpression $mergeReturn Block''' | Function $mergeReturn Block''' | Condition $mergeReturn Block''' | Block'''", "Block'''                   ->  Semicolon end $popBlock", // 条件语句 if(): elif(): else:
 "Condition                  ->  If Elif", "If                         ->  if leftBracket BinaryExpression rightBracket $mergeIfTest Colon SingleBlock $mergeIfConsequent", "Elif                       ->  elif leftBracket BinaryExpression rightBracket $mergeIfTest Colon SingleBlock $mergeIfConsequent $mergeAlternate Elif |\n                                  Else | \n                                  null", "Else                       ->  else Colon SingleBlock $mergeAlternate", // 循环 for():
 "Circulation                ->  For CirculationElse | While CirculationElse", "For                        ->  for leftBracket ForSentence' $mergeForInit SingleSemicolon ForSentence'' $mergeForTest SingleSemicolon ForSentence''' $mergeForUpdate rightBracket Colon SingleBlock  $mergeForBody", "ForSentence'               ->  Defined | Assignment | null", "ForSentence''              ->  BinaryExpression | null", "ForSentence'''             ->  Assignment | null", "While                      ->  while leftBracket BinaryExpression rightBracket $mergeWhileTest Colon SingleBlock $mergeWhileBody", "CirculationElse            ->  Else | null", // 
 "SingleBlock                ->  Block | BinaryExpression | Function | pass | break SingleBlock' $mergeReturn | continue", "SingleBlock'               ->  BinaryExpression | null", // 单终结符
 "Colon                      ->  colon"];
-var terminalSymbols = 'defined|identifier|equal|congruent|semicolon|leftBracket|rightBracket|literal|plus|minus|multiply|divide|surplus|function|begin|end|return|comma|colon|if|elif|else|or|and|not|greater|greaterEqual|less|lessEqual|pass|for|while|break|continue'.split('|');
+var terminalSymbols = 'defined|identifier|equal|congruent|semicolon|leftBracket|rightBracket|literal|plus|minus|multiply|divide|surplus|function|begin|end|return|comma|colon|if|elif|else|or|and|not|greater|greaterEqual|less|lessEqual|pass|for|while|break|continue|leftBrace|rightBrace'.split('|');
 var grammar_ll1 = (0,ll1.makeLL1)(grammars, terminalSymbols);
 var startSymbol = grammar_ll1.startSymbol;
 var predictSet = grammar_ll1.predictSet;
@@ -2734,12 +2782,15 @@ function _getPrototypeOf(o) {
 
 
 
+
+
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 var packageType = {
   Literal: 'Literal',
   Function: 'Function',
-  SystemFunction: 'SystemFunction'
+  SystemFunction: 'SystemFunction',
+  Array: 'Array'
 };
 var System = /*#__PURE__*/_createClass(function System() {
   _classCallCheck(this, System);
@@ -2759,67 +2810,107 @@ var Literal = /*#__PURE__*/function (_System) {
   }
   return _createClass(Literal);
 }(System);
-var Function = /*#__PURE__*/function (_System2) {
-  _inherits(Function, _System2);
-  var _super2 = _createSuper(Function);
-  function Function(name, params, body, scope) {
+var ArrayLiteral = /*#__PURE__*/function (_System2) {
+  _inherits(ArrayLiteral, _System2);
+  var _super2 = _createSuper(ArrayLiteral);
+  function ArrayLiteral(array) {
     var _this2;
-    _classCallCheck(this, Function);
+    _classCallCheck(this, ArrayLiteral);
     _this2 = _super2.call(this);
-    _defineProperty(_assertThisInitialized(_this2), "__type__", packageType['Function']);
-    _this2.name = name;
-    _this2.params = params.map(function (param) {
+    _defineProperty(_assertThisInitialized(_this2), "__type__", packageType['Array']);
+    _defineProperty(_assertThisInitialized(_this2), "append", new SystemFunction('append', function (args) {
+      var _this2$array;
+      (_this2$array = _this2.array).push.apply(_this2$array, _toConsumableArray(args));
+      return _assertThisInitialized(_this2);
+    }));
+    _defineProperty(_assertThisInitialized(_this2), "pop", new SystemFunction('pop', function () {
+      return _this2.array.pop();
+    }));
+    _defineProperty(_assertThisInitialized(_this2), "reverse", new SystemFunction('reverse', function () {
+      _this2.array.reverse();
+      return _assertThisInitialized(_this2);
+    }));
+    _defineProperty(_assertThisInitialized(_this2), "copy", new SystemFunction('copy', function () {
+      return new ArrayLiteral(_toConsumableArray(_this2.array));
+    }));
+    _this2.array = array;
+    return _this2;
+  }
+  return _createClass(ArrayLiteral);
+}(System);
+var Function = /*#__PURE__*/function (_System3) {
+  _inherits(Function, _System3);
+  var _super3 = _createSuper(Function);
+  function Function(name, params, body, scope) {
+    var _this3;
+    _classCallCheck(this, Function);
+    _this3 = _super3.call(this);
+    _defineProperty(_assertThisInitialized(_this3), "__type__", packageType['Function']);
+    _this3.name = name;
+    _this3.params = params.map(function (param) {
       return param.name;
     });
-    _this2.length = params.length;
-    _this2.body = body;
-    _this2.scope = scope;
-    return _this2;
+    _this3.length = params.length;
+    _this3.body = body;
+    _this3.scope = scope;
+    return _this3;
   }
   return _createClass(Function);
 }(System);
-var SystemFunction = /*#__PURE__*/function (_System3) {
-  _inherits(SystemFunction, _System3);
-  var _super3 = _createSuper(SystemFunction);
+var SystemFunction = /*#__PURE__*/function (_System4) {
+  _inherits(SystemFunction, _System4);
+  var _super4 = _createSuper(SystemFunction);
   function SystemFunction(name, fn) {
-    var _this3;
+    var _this4;
     _classCallCheck(this, SystemFunction);
-    _this3 = _super3.call(this);
-    _defineProperty(_assertThisInitialized(_this3), "__type__", packageType['SystemFunction']);
-    _this3.name = name;
-    _this3.fn = fn;
-    return _this3;
+    _this4 = _super4.call(this);
+    _defineProperty(_assertThisInitialized(_this4), "__type__", packageType['SystemFunction']);
+    _this4.name = name;
+    _this4.fn = fn;
+    return _this4;
   }
   return _createClass(SystemFunction);
 }(System);
 function getValue(pack) {
+  if (Array.isArray(pack)) {
+    var _pack = _slicedToArray(pack, 2),
+      array = _pack[0],
+      index = _pack[1];
+    return array.array[index];
+  }
   if (!(pack !== null && pack !== void 0 && pack.__type__)) return pack;
   if (pack.__type__ === packageType['Literal']) {
     var _pack$value;
     if (((_pack$value = pack.value) === null || _pack$value === void 0 ? void 0 : _pack$value.__type__) === packageType['Function']) {
-      return '';
+      return pack.value;
     } else {
       return pack.value;
     }
   } else if (pack.__type__ === packageType['Function']) {
-    return '';
+    return pack;
   }
 }
 function package_toString(pack) {
+  if (Array.isArray(pack)) {
+    var _pack2 = _slicedToArray(pack, 2),
+      array = _pack2[0],
+      index = _pack2[1];
+    return package_toString(array.array[index]);
+  }
   if (!(pack !== null && pack !== void 0 && pack.__type__)) return basicType(pack);
-  if (pack.__type__ === packageType['Literal']) {
-    var _pack$value2, _pack$value3;
-    if ([packageType['Function']].includes((_pack$value2 = pack.value) === null || _pack$value2 === void 0 ? void 0 : _pack$value2.__type__)) {
-      return "\x1B[36;2m".concat("<Function ".concat(pack.value.name, ">"), "\x1B[0m");
-    } else if ([packageType['SystemFunction']].includes((_pack$value3 = pack.value) === null || _pack$value3 === void 0 ? void 0 : _pack$value3.__type__)) {
-      return "\x1B[36;2m".concat("<SystemFunction ".concat(pack.value.name, ">"), "\x1B[0m");
-    } else {
+  switch (pack.__type__) {
+    case packageType['Literal']:
+      return package_toString(pack.value);
+    case packageType['Function']:
+      return "\x1B[36;2m".concat("<Function ".concat(pack.name, ">"), "\x1B[0m");
+    case packageType['SystemFunction']:
+      return "\x1B[36;2m".concat("<SystemFunction ".concat(pack.name, ">"), "\x1B[0m");
+    case packageType['Array']:
+      return "{".concat(pack.array.map(function (item) {
+        return ' ' + package_toString(item);
+      }), " }");
+    default:
       return basicType(pack.value);
-    }
-  } else if (pack.__type__ === packageType['Function']) {
-    return "\x1B[36;2m".concat("<Function ".concat(pack.name, ">"), "\x1B[0m");
-  } else if (pack.__type__ === packageType['SystemFunction']) {
-    return "\x1B[36;2m".concat("<SystemFunction ".concat(pack.name, ">"), "\x1B[0m");
   }
   function basicType(value) {
     switch (value) {
@@ -2832,21 +2923,23 @@ function package_toString(pack) {
       case undefined:
         return "\x1B[30;2mnull\x1B[0m";
       default:
+        if (typeof value === 'number') return "\x1B[33;2m".concat(value, "\x1B[0m");
         return value;
     }
   }
 }
 function getType(pack) {
   if (!(pack !== null && pack !== void 0 && pack.__type__)) return basicType(pack);
-  if (pack.__type__ === packageType['Literal']) {
-    var _pack$value4;
-    if ([packageType['Function'], packageType['SystemFunction']].includes((_pack$value4 = pack.value) === null || _pack$value4 === void 0 ? void 0 : _pack$value4.__type__)) {
+  switch (pack.__type__) {
+    case packageType['Literal']:
+      return getType(pack.value);
+    case packageType['Function']:
+    case packageType['SystemFunction']:
       return "<class function>";
-    } else {
+    case packageType['Array']:
+      return "<class array>";
+    default:
       return basicType(pack.value);
-    }
-  } else if ([packageType['Function'], packageType['SystemFunction']].includes(pack.__type__)) {
-    return "<class function>";
   }
   function basicType(value) {
     switch (value) {
@@ -2893,7 +2986,7 @@ var Compiler = /*#__PURE__*/function () {
         })));
       }));
       globalScope.set('type', new SystemFunction('type', function (args, node) {
-        var value = args[0];
+        var value = unlock(args[0]);
         return "\x1B[35;2m".concat(getType(value), "\x1B[0m");
       }));
       globalScope.set('eval', new SystemFunction('eval', function (args, node) {
@@ -2922,6 +3015,13 @@ var Compiler = /*#__PURE__*/function () {
           _this.handle(fn.body, fn.scope, fn.scope);
           fn.scope.clear();
         }, getValue(time));
+      }));
+      globalScope.set('len', new SystemFunction('len', function (args, node) {
+        var _array;
+        var array = args[0];
+        if (array.__type__ === packageType.Literal) array = array.value;
+        if (((_array = array) === null || _array === void 0 ? void 0 : _array.__type__) === packageType.Array) return array.array.length;
+        error(TypeError, "<len>: param is not array", node.arguments[0].source, node.arguments[0].location);
       }));
       return globalScope;
     }
@@ -3095,24 +3195,34 @@ var Compiler = /*#__PURE__*/function () {
           {
             var _left2 = root.left,
               _right2 = root.right;
-            var _name = _left2.name;
-            var _result5 = scope.get(_name);
-            if (_result5) {
-              if (_result5.__type__ === packageType.Function) {
-                error(TypeError, "Function is not variable", root.source, root.location);
-              }
-              if (_result5.__type__ === packageType.Literal) {
-                if (!_result5.isRead) {
-                  var _thisRes;
-                  var thisRes = unlock(this.handle(_right2, null, scope));
-                  thisRes = ((_thisRes = thisRes) === null || _thisRes === void 0 ? void 0 : _thisRes.__type__) === packageType.Literal ? thisRes.value : thisRes;
-                  _result5.value = thisRes;
-                } else {
-                  error(TypeError, "Assignment to constant variable", root.source, root.location);
+            if (_left2.type === AstType.Identifier) {
+              var _result5 = scope.get(_left2.name);
+              if (_result5) {
+                if (_result5.__type__ === packageType.Function) {
+                  error(TypeError, "Function is not variable", root.source, root.location);
                 }
+                if (_result5.__type__ === packageType.Literal) {
+                  if (!_result5.isRead) {
+                    var _thisRes;
+                    var thisRes = unlock(this.handle(_right2, null, scope));
+                    thisRes = ((_thisRes = thisRes) === null || _thisRes === void 0 ? void 0 : _thisRes.__type__) === packageType.Literal ? thisRes.value : thisRes;
+                    _result5.value = thisRes;
+                  } else {
+                    error(TypeError, "Assignment to constant variable", root.source, root.location);
+                  }
+                }
+              } else {
+                error(SyntaxError, "Identifier '".concat(_left2.name, "' is not declared"), _left2.source, _left2.location);
               }
             } else {
-              error(SyntaxError, "Identifier '".concat(identifier.name, "' is not declared"), identifier.source, identifier.location);
+              var _thisRes3;
+              var _this$handle = this.handle(_left2, null, scope),
+                _this$handle2 = _slicedToArray(_this$handle, 2),
+                array = _this$handle2[0],
+                index = _this$handle2[1];
+              var _thisRes2 = unlock(this.handle(_right2, null, scope));
+              _thisRes2 = ((_thisRes3 = _thisRes2) === null || _thisRes3 === void 0 ? void 0 : _thisRes3.__type__) === packageType.Literal ? _thisRes2.value : _thisRes2;
+              array.array[index] = _thisRes2;
             }
           }
           break;
@@ -3121,7 +3231,7 @@ var Compiler = /*#__PURE__*/function () {
             var _id = root.id,
               params = root.params,
               _body2 = root.body;
-            var _name2 = _id.name;
+            var _name = _id.name;
             var set = new Set();
             params.some(function (param) {
               // 检查是否有重复的参数名
@@ -3131,29 +3241,38 @@ var Compiler = /*#__PURE__*/function () {
                 error(SyntaxError, "Identifier not repeatable params: ".concat(param.name), param.source, param.location);
               }
             });
-            if (!scope.has(_name2)) {
-              scope.set(_name2, new Function(_name2, params, _body2, new Scope(scope)));
-              return scope.get(_name2);
+            if (!scope.has(_name)) {
+              scope.set(_name, new Function(_name, params, _body2, new Scope(scope)));
+              return scope.get(_name);
             } else {
-              error(SyntaxError, "Identifier '".concat(_name2, "' has already been declared"), _id.source, _id.location);
+              error(SyntaxError, "Identifier '".concat(_name, "' has already been declared"), _id.source, _id.location);
             }
           }
           break;
         case AstType.CallExpression:
           {
+            var _func;
             var callee = root.callee,
               args = root.arguments;
-            var func = this.handle(callee, null, scope);
-            if (func.__type__ === packageType.SystemFunction) {
+            var func = unlock(this.handle(callee, null, scope));
+            if (((_func = func) === null || _func === void 0 ? void 0 : _func.__type__) === packageType.SystemFunction) {
               return func.fn.apply(null, [args.map(function (arg) {
                 return _this2.handle(arg, null, scope);
               }), root, scope]);
             } else {
-              var _func;
-              if (func.__type__ === packageType.Literal) {
+              var _func2, _func3;
+              if (((_func2 = func) === null || _func2 === void 0 ? void 0 : _func2.__type__) === packageType.Literal) {
                 func = func.value;
               }
-              if (![packageType.Function, packageType.SystemFunction].includes((_func = func) === null || _func === void 0 ? void 0 : _func.__type__)) error(TypeError, "".concat(callee.name, " is not a function"), callee.source, callee.location);
+              if (![packageType.Function, packageType.SystemFunction].includes((_func3 = func) === null || _func3 === void 0 ? void 0 : _func3.__type__)) {
+                var identifier = callee;
+                var isChained = false;
+                while (identifier.type === AstType.CallExpression) {
+                  identifier = identifier.callee;
+                  isChained = true;
+                }
+                error(TypeError, "".concat(identifier.name + (isChained && '(...)'), " is not a function"), identifier.source, identifier.location);
+              }
               if (func.__type__ === packageType.SystemFunction) {
                 return func.fn.apply(null, [args.map(function (arg) {
                   return _this2.handle(arg, null, scope);
@@ -3208,9 +3327,9 @@ var Compiler = /*#__PURE__*/function () {
         case AstType.WhileStatement:
           {
             while (getValue(this.handle(root.test, null, scope))) {
-              var _thisRes2 = this.handle(root['body'], null, scope);
-              if (Array.isArray(_thisRes2)) {
-                if (_thisRes2[1] === 'break') return _thisRes2[0];else if (_thisRes2[1] === 'return') return _thisRes2;else if (_thisRes2[1] === 'continue') continue;
+              var _thisRes4 = this.handle(root['body'], null, scope);
+              if (Array.isArray(_thisRes4)) {
+                if (_thisRes4[1] === 'break') return _thisRes4[0];else if (_thisRes4[1] === 'return') return _thisRes4;else if (_thisRes4[1] === 'continue') continue;
               }
             }
             if (root['alternate']) return this.handle(root['alternate'], null, scope);
@@ -3226,28 +3345,69 @@ var Compiler = /*#__PURE__*/function () {
             var newScope = new Scope(scope);
             _init && this.handle(_init, null, newScope);
             while (!_test || getValue(this.handle(_test, null, newScope))) {
-              var _thisRes3 = this.handle(_body3, null, newScope);
+              var _thisRes5 = this.handle(_body3, null, newScope);
               update && this.handle(update, null, newScope);
-              if (Array.isArray(_thisRes3)) {
-                if (_thisRes3[1] === 'break') return _thisRes3[0];else if (_thisRes3[1] === 'return') return _thisRes3;else if (_thisRes3[1] === 'continue') continue;
+              if (Array.isArray(_thisRes5)) {
+                if (_thisRes5[1] === 'break') return _thisRes5[0];else if (_thisRes5[1] === 'return') return _thisRes5;else if (_thisRes5[1] === 'continue') continue;
               }
             }
             if (alternate) return this.handle(alternate, null, scope);
           }
           break;
-      }
-      function unlock(result) {
-        if (Array.isArray(result)) {
-          return result[0];
-        } else {
-          return result;
-        }
+        case AstType.ArrayExpression:
+          {
+            var elements = root.elements;
+            return new ArrayLiteral(elements.map(function (elm) {
+              return _this2.handle(elm, null, scope);
+            }));
+          }
+        case AstType.MemberExpression:
+          {
+            var _array3;
+            var object = root.object,
+              property = root.property;
+            var _array2 = this.handle(object, null, scope);
+            var _index = this.handle(property, null, scope);
+            if (_array2.__type__ === packageType.Literal) _array2 = _array2.value;
+            if (((_array3 = _array2) === null || _array3 === void 0 ? void 0 : _array3.__type__) !== packageType.Array) {
+              if (object.name) {
+                error(TypeError, "".concat(object.name, " is not array"), object.source, object.location);
+              } else {
+                error(TypeError, "Cannot read properties of ".concat(package_toString(_array2), " (reading '").concat(package_toString(_index), "')"), property.source, property.location);
+              }
+            }
+            if (_index.__type__ === packageType.Literal) _index = _index.value;
+            var indexType = getType(_index);
+            var key = package_toString(_index);
+            if (indexType === "<class string>") {
+              var arrayFunc = _array2[key];
+              if (!arrayFunc) {
+                error(TypeError, "".concat(key, " is not function"), property.source, property.location);
+              }
+              return arrayFunc;
+            } else if (indexType !== "<class number>") {
+              error(TypeError, "".concat(key, " is not number"), property.source, property.location);
+            }
+            return [_array2, _index];
+          }
       }
     }
   }]);
   return Compiler;
 }();
 
+function unlock(result) {
+  if (Array.isArray(result)) {
+    if (['return', 'break'].includes(result[1])) return result[0];else {
+      var _result7 = _slicedToArray(result, 2),
+        array = _result7[0],
+        index = _result7[1];
+      return array.array[index];
+    }
+  } else {
+    return result;
+  }
+}
 ;// CONCATENATED MODULE: ./src/compiler/index.js
 
 /* harmony default export */ const compiler = (Compiler);

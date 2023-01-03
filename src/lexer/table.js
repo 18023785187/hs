@@ -36,6 +36,8 @@ export default {
     [',']: { state: 'comma' },
     ['>']: { state: 'greaterWrite' },
     ['<']: { state: 'lessWrite' },
+    ['{']: { state: 'leftBrace' },
+    ['}']: { state: 'rightBrace' },
     [blank]: { state: Initialize }
   },
   ['chars']: {
@@ -451,6 +453,12 @@ export default {
   },
   ['comma']: {
     [Else]: { state: 'comma', isTerminate: true }
+  },
+  ['leftBrace']: {
+    [Else]: { state: 'leftBrace', isTerminate: true }
+  },
+  ['rightBrace']: {
+    [Else]: { state: 'rightBrace', isTerminate: true }
   },
   ['pound']: {
     '>': { state: 'comment' }

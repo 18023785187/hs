@@ -2,104 +2,133 @@
 export const packageType = {
   Literal: 'Literal',
   Function: 'Function',
-  SystemFunction: 'SystemFunction'
-}
+  SystemFunction: 'SystemFunction',
+  Array: 'Array'
+};
 
 class System {
-  __system__ = true
+  __system__ = true;
 }
 
 export class Literal extends System {
-  __type__ = packageType['Literal']
+  __type__ = packageType['Literal'];
   constructor(isRead, value) {
-    super()
-    this.isRead = isRead
-    this.value = value
+    super();
+    this.isRead = isRead;
+    this.value = value;
   }
 }
 
+export class ArrayLiteral extends System {
+  __type__ = packageType['Array'];
+  constructor(array) {
+    super();
+    this.array = array;
+  }
+
+  append = new SystemFunction('append', (args) => {
+    this.array.push(...args)
+    return this
+  })
+
+  pop = new SystemFunction('pop', () => {
+    return this.array.pop()
+  })
+
+  reverse = new SystemFunction('reverse', () => {
+    this.array.reverse()
+    return this
+  })
+
+  copy = new SystemFunction('copy', () => {
+    return new ArrayLiteral([...this.array])
+  })
+}
+
 export class Function extends System {
-  __type__ = packageType['Function']
+  __type__ = packageType['Function'];
   constructor(name, params, body, scope) {
-    super()
-    this.name = name
-    this.params = params.map(param => param.name)
-    this.length = params.length
-    this.body = body
-    this.scope = scope
+    super();
+    this.name = name;
+    this.params = params.map(param => param.name);
+    this.length = params.length;
+    this.body = body;
+    this.scope = scope;
   }
 }
 
 export class SystemFunction extends System {
-  __type__ = packageType['SystemFunction']
+  __type__ = packageType['SystemFunction'];
   constructor(name, fn) {
-    super()
-    this.name = name
-    this.fn = fn
+    super();
+    this.name = name;
+    this.fn = fn;
   }
 }
 
 export function getValue(pack) {
-  if (!pack?.__type__) return pack
+  if (Array.isArray(pack)) {
+    const [array, index] = pack
+    return array.array[index]
+  }
+  if (!pack?.__type__) return pack;
   if (pack.__type__ === packageType['Literal']) {
     if (pack.value?.__type__ === packageType['Function']) {
-      return ''
+      return pack.value;
     } else {
-      return pack.value
+      return pack.value;
     }
   } else if (pack.__type__ === packageType['Function']) {
-    return ''
+    return pack;
   }
 }
 
 export function toString(pack) {
-  if (!pack?.__type__) return basicType(pack)
-  if (pack.__type__ === packageType['Literal']) {
-    if ([packageType['Function']].includes(pack.value?.__type__)) {
-      return `\x1b[36;2m${`<Function ${pack.value.name}>`}\x1b[0m`
-    } else if ([packageType['SystemFunction']].includes(pack.value?.__type__)) {
-      return `\x1b[36;2m${`<SystemFunction ${pack.value.name}>`}\x1b[0m`
-    } else {
-      return basicType(pack.value)
-    }
-  } else if (pack.__type__ === packageType['Function']) {
-    return `\x1b[36;2m${`<Function ${pack.name}>`}\x1b[0m`
-  } else if (pack.__type__ === packageType['SystemFunction']) {
-    return `\x1b[36;2m${`<SystemFunction ${pack.name}>`}\x1b[0m`
+  if (Array.isArray(pack)) {
+    const [array, index] = pack
+    return toString(array.array[index])
+  }
+  if (!pack?.__type__) return basicType(pack);
+  switch (pack.__type__) {
+    case packageType['Literal']: return toString(pack.value);
+    case packageType['Function']: return `\x1b[36;2m${`<Function ${pack.name}>`}\x1b[0m`;
+    case packageType['SystemFunction']: return `\x1b[36;2m${`<SystemFunction ${pack.name}>`}\x1b[0m`;
+    case packageType['Array']: return `{${pack.array.map(item => ' ' + toString(item))} }`;
+    default: return basicType(pack.value);
   }
 
   function basicType(value) {
     switch (value) {
-      case true: return `\x1b[32;2mTrue\x1b[0m`
-      case false: return `\x1b[31;2mFalse\x1b[0m`
-      case null: return `\x1b[30;2mnull\x1b[0m`
-      case undefined: return `\x1b[30;2mnull\x1b[0m`
-      default: return value
+      case true: return `\x1b[32;2mTrue\x1b[0m`;
+      case false: return `\x1b[31;2mFalse\x1b[0m`;
+      case null: return `\x1b[30;2mnull\x1b[0m`;
+      case undefined: return `\x1b[30;2mnull\x1b[0m`;
+      default:
+        if (typeof value === 'number') return `\x1b[33;2m${value}\x1b[0m`;
+        return value;
     }
   }
 }
 
 export function getType(pack) {
-  if (!pack?.__type__) return basicType(pack)
-  if (pack.__type__ === packageType['Literal']) {
-    if ([packageType['Function'], packageType['SystemFunction']].includes(pack.value?.__type__)) {
-      return `<class function>`
-    } else {
-      return basicType(pack.value)
-    }
-  } else if ([packageType['Function'], packageType['SystemFunction']].includes(pack.__type__)) {
-    return `<class function>`
+  if (!pack?.__type__) return basicType(pack);
+  switch (pack.__type__) {
+    case packageType['Literal']: return getType(pack.value);
+    case packageType['Function']:
+    case packageType['SystemFunction']: return `<class function>`;
+    case packageType['Array']: return `<class array>`;
+    default: return basicType(pack.value);
   }
 
   function basicType(value) {
     switch (value) {
-      case true: return `<class boolean>`
-      case false: return `<class boolean>`
-      case null: return `<class null>`
-      case undefined: return `<class null>`
+      case true: return `<class boolean>`;
+      case false: return `<class boolean>`;
+      case null: return `<class null>`;
+      case undefined: return `<class null>`;
       default:
-        if(typeof value === 'number') return `<class number>`
-        if(typeof value === 'string') return `<class string>`
+        if (typeof value === 'number') return `<class number>`;
+        if (typeof value === 'string') return `<class string>`;
     }
   }
 }

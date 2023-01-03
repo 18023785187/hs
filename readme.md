@@ -15,6 +15,8 @@ hs 使用 LL1 文法实现，特点是类似 python 的语法。
 
 或 `npm i hym-script -g` 下载项目，直接运行 `hs xxx.hs`。
 
+注意：请使用 v14 以上的 node 版本。
+
 #### 特性
 
 ###### 注释
@@ -33,7 +35,7 @@ hs 每一段语句都需要用 `;` 结尾。
 
 ###### 变量
 
-目前支持数字、字符串、null、布尔值
+目前支持数字、字符串、null、布尔值、数组
 
 ```javascript
 def num = 1.23;
@@ -41,6 +43,9 @@ def str = "hello hs";
 def nul = null;
 def bool1 = True;
 def bool2 = False;
+def array = {1, True, func f(): pass};
+
+array{1}; #> True <#
 
 #>
   字符串支持换行
@@ -48,6 +53,32 @@ def bool2 = False;
 def str2 = "
   hello hs
 ";
+```
+
+###### 数组
+
+数组由 `{}` 声明，并内置一系列数组方法。
+
+```javascript
+#> 声明 <#
+def list = {1, True, False, func f(): pass};
+
+print(list{1}); #> True <#
+
+#> 多维数组 <#
+def list = {{{1}}, 2};
+
+print(list{0}{0}{0}) #> 1 <#
+
+#> 改变数组值 <#
+list{0} = 6;
+
+#> 调用数组内置方法 <#
+list{"append"}(1,2,3); #> 往数组末尾添加 1、2、3 <#
+list{"pop"}(); #> 由数组末尾弹出一个元素 <#
+list{"reverse"}(); #> 反转数组 <#
+list{"copy"}(); #> 浅拷贝 list 数组 <#
+len(list); #> 返回数组长度 <#
 ```
 
 ###### 声明变量
@@ -218,7 +249,15 @@ print(func fn(): pass); #> <Function fn> <#
 返回给定值的类型。
 
 ```javascript
-print(func a(): pass); #> <class function> <#
+type(func a(): pass); #> <class function> <#
+```
+
+###### len(array)
+
+返回数组的长度。
+
+```javascript
+len({1, 2, 3}); #> 3 <#
 ```
 
 ###### eval(string)
