@@ -13,6 +13,7 @@ export const AstType = {
   'DivideExpression': 'DivideExpression',
   'SurplusExpression': 'SurplusExpression',
   'CongruentExpression': 'CongruentExpression',
+  'NotEqualExpression': 'NotEqualExpression',
   'NotExpression': 'NotExpression',
   'AndExpression': 'AndExpression',
   'OrExpression': 'OrExpression',

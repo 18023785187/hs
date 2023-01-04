@@ -169,6 +169,7 @@ export default class Compiler {
           case '<': return unlock(getValue(this.handle(left, null, scope))) < unlock(getValue(this.handle(right, null, scope)));
           case '<=': return unlock(getValue(this.handle(left, null, scope))) <= unlock(getValue(this.handle(right, null, scope)));
           case '==': return unlock(getValue(this.handle(left, null, scope))) === unlock(getValue(this.handle(right, null, scope)));
+          case 'not=': return unlock(getValue(this.handle(left, null, scope))) !== unlock(getValue(this.handle(right, null, scope)));
         }
       }
       case AstType['LogicalExpression']: {

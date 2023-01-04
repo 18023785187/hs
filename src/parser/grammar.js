@@ -19,7 +19,7 @@ const grammars =
   `Variable'                  ->  ArrayMember Variable''' | CallFunc | null`,
   `Variable''                 ->  ArrayMember | null`,
   `Variable'''                ->  CallFunc | null`,
-  `LogicalExpression          ->  or ArithmeticExpression1 $logicalExpression | and ArithmeticExpression1 $logicalExpression | congruent ArithmeticExpression1 $binaryExpression`,
+  `LogicalExpression          ->  or ArithmeticExpression1 $logicalExpression | and ArithmeticExpression1 $logicalExpression | congruent ArithmeticExpression1 $binaryExpression | notEqual ArithmeticExpression1 $binaryExpression`,
   `ComparisonExpression       ->  greater ArithmeticExpression1 $binaryExpression |
                                   greaterEqual ArithmeticExpression1 $binaryExpression | 
                                   less ArithmeticExpression1 $binaryExpression | 
@@ -80,7 +80,7 @@ const grammars =
   `Colon                      ->  colon`,
 ];
 const terminalSymbols =
-  'defined|identifier|equal|congruent|semicolon|leftBracket|rightBracket|literal|plus|minus|multiply|divide|surplus|function|begin|end|return|comma|colon|if|elif|else|or|and|not|greater|greaterEqual|less|lessEqual|pass|for|while|break|continue|leftBrace|rightBrace'
+  'defined|identifier|equal|congruent|notEqual|semicolon|leftBracket|rightBracket|literal|plus|minus|multiply|divide|surplus|function|begin|end|return|comma|colon|if|elif|else|or|and|not|greater|greaterEqual|less|lessEqual|pass|for|while|break|continue|leftBrace|rightBrace'
     .split('|');
 
 const ll1 = makeLL1(grammars, terminalSymbols);

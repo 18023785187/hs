@@ -299,7 +299,11 @@ export default {
   },
   ['not3']: {
     [chars + number]: { state: 'chars' },
+    ['=']: { state: 'notEqual' },
     [Else]: { state: 'not', isTerminate: true }
+  },
+  ['notEqual']: {
+    [Else]: { state: 'notEqual', isTerminate: true }
   },
   ['null2']: {
     ['l']: { state: 'null3' },

@@ -27,7 +27,7 @@ export class ArrayLiteral extends System {
   }
 
   append = new SystemFunction('append', (args) => {
-    this.array.push(...args)
+    this.array.push(...args.map(arg => assign(arg)))
     return this
   })
 
@@ -64,6 +64,12 @@ export class SystemFunction extends System {
     this.name = name;
     this.fn = fn;
   }
+}
+
+export function assign(pack) {
+  if(!pack?.__type__) return pack
+  if(pack.__type__ === packageType['Literal']) return new Literal(false, pack.value)
+  else return pack
 }
 
 export function getValue(pack) {

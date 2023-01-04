@@ -923,6 +923,7 @@ __webpack_require__.d(constructor_namespaceObject, {
   "_minus": () => (_minus),
   "_multiply": () => (_multiply),
   "_not": () => (constructor_not),
+  "_notEqual": () => (_notEqual),
   "_or": () => (constructor_or),
   "_pass": () => (constructor_pass),
   "_plus": () => (_plus),
@@ -1717,10 +1718,15 @@ var _Initialize, _chars, _zero, _number, _decimals, _def, _def2, _def3, _readOrR
   isTerminate: true
 }), _not)), _defineProperty(_Initialize$chars$zer, 'not3', (_not2 = {}, _defineProperty(_not2, chars + number, {
   state: 'chars'
+}), _defineProperty(_not2, '=', {
+  state: 'notEqual'
 }), _defineProperty(_not2, Else, {
   state: 'not',
   isTerminate: true
-}), _not2)), _defineProperty(_Initialize$chars$zer, 'null2', (_null = {}, _defineProperty(_null, 'l', {
+}), _not2)), _defineProperty(_Initialize$chars$zer, 'notEqual', _defineProperty({}, Else, {
+  state: 'notEqual',
+  isTerminate: true
+})), _defineProperty(_Initialize$chars$zer, 'null2', (_null = {}, _defineProperty(_null, 'l', {
   state: 'null3'
 }), _defineProperty(_null, chars + number, {
   state: 'chars'
@@ -1983,6 +1989,7 @@ var AstType = {
   'DivideExpression': 'DivideExpression',
   'SurplusExpression': 'SurplusExpression',
   'CongruentExpression': 'CongruentExpression',
+  'NotEqualExpression': 'NotEqualExpression',
   'NotExpression': 'NotExpression',
   'AndExpression': 'AndExpression',
   'OrExpression': 'OrExpression',
@@ -2297,10 +2304,21 @@ function _congruent(_ref16) {
     operator: value
   };
 }
-function constructor_not(_ref17) {
+function _notEqual(_ref17) {
   var value = _ref17.value,
     source = _ref17.source,
     location = _ref17.location;
+  return {
+    type: AstType.NotEqualExpression,
+    source: source,
+    location: location,
+    operator: value
+  };
+}
+function constructor_not(_ref18) {
+  var value = _ref18.value,
+    source = _ref18.source,
+    location = _ref18.location;
   return {
     type: AstType.NotExpression,
     source: source,
@@ -2308,10 +2326,10 @@ function constructor_not(_ref17) {
     operator: value
   };
 }
-function constructor_and(_ref18) {
-  var value = _ref18.value,
-    source = _ref18.source,
-    location = _ref18.location;
+function constructor_and(_ref19) {
+  var value = _ref19.value,
+    source = _ref19.source,
+    location = _ref19.location;
   return {
     type: AstType.AndExpression,
     source: source,
@@ -2319,10 +2337,10 @@ function constructor_and(_ref18) {
     operator: value
   };
 }
-function constructor_or(_ref19) {
-  var value = _ref19.value,
-    source = _ref19.source,
-    location = _ref19.location;
+function constructor_or(_ref20) {
+  var value = _ref20.value,
+    source = _ref20.source,
+    location = _ref20.location;
   return {
     type: AstType.OrExpression,
     source: source,
@@ -2330,10 +2348,10 @@ function constructor_or(_ref19) {
     operator: value
   };
 }
-function _greater(_ref20) {
-  var value = _ref20.value,
-    source = _ref20.source,
-    location = _ref20.location;
+function _greater(_ref21) {
+  var value = _ref21.value,
+    source = _ref21.source,
+    location = _ref21.location;
   return {
     type: AstType.GreaterExpression,
     source: source,
@@ -2341,10 +2359,10 @@ function _greater(_ref20) {
     operator: value
   };
 }
-function _greaterEqual(_ref21) {
-  var value = _ref21.value,
-    source = _ref21.source,
-    location = _ref21.location;
+function _greaterEqual(_ref22) {
+  var value = _ref22.value,
+    source = _ref22.source,
+    location = _ref22.location;
   return {
     type: AstType.GreaterEqualExpression,
     source: source,
@@ -2352,10 +2370,10 @@ function _greaterEqual(_ref21) {
     operator: value
   };
 }
-function _less(_ref22) {
-  var value = _ref22.value,
-    source = _ref22.source,
-    location = _ref22.location;
+function _less(_ref23) {
+  var value = _ref23.value,
+    source = _ref23.source,
+    location = _ref23.location;
   return {
     type: AstType.LessExpression,
     source: source,
@@ -2363,10 +2381,10 @@ function _less(_ref22) {
     operator: value
   };
 }
-function _lessEqual(_ref23) {
-  var value = _ref23.value,
-    source = _ref23.source,
-    location = _ref23.location;
+function _lessEqual(_ref24) {
+  var value = _ref24.value,
+    source = _ref24.source,
+    location = _ref24.location;
   return {
     type: AstType.LessEqualExpression,
     source: source,
@@ -2455,9 +2473,9 @@ function $updateCallInfo(astList) {
 function $expressionStatement(astList) {
   astList.push(createExpressionStatement(astList.pop()));
 }
-function constructor_while(_ref24) {
-  var source = _ref24.source,
-    location = _ref24.location;
+function constructor_while(_ref25) {
+  var source = _ref25.source,
+    location = _ref25.location;
   return {
     type: AstType.WhileStatement,
     source: source,
@@ -2481,9 +2499,9 @@ function $mergeWhileBody(astList) {
   whileStatement.body = body;
   astList.splice(startIndex + 1, 1);
 }
-function constructor_for(_ref25) {
-  var source = _ref25.source,
-    location = _ref25.location;
+function constructor_for(_ref26) {
+  var source = _ref26.source,
+    location = _ref26.location;
   return {
     type: AstType.ForStatement,
     source: source,
@@ -2526,9 +2544,9 @@ function $mergeForBody(astList) {
   forStatement.body = body;
   astList.splice(startIndex + 1, 1);
 }
-function _leftBrace(_ref26) {
-  var source = _ref26.source,
-    location = _ref26.location;
+function _leftBrace(_ref27) {
+  var source = _ref27.source,
+    location = _ref27.location;
   return {
     type: AstType.ArrayExpression,
     source: source,
@@ -2658,7 +2676,7 @@ var Parser = /*#__PURE__*/function () {
 ;// CONCATENATED MODULE: ./src/parser/grammar.js
 
 var grammars = ["Sentence                   ->  SingleStatement Semicolon Sentence | null", "SingleStatement            ->  Defined | Block | Function | Condition | Circulation | Assignment", "Semicolon                  ->  SingleSemicolon Semicolon'", "Semicolon'                 ->  SingleSemicolon Semicolon' | null", "SingleSemicolon            ->  semicolon", // 表达式 id; 1; 1+1; 1>2; 1 and 2; 1 or 2; not 2; a+b; -1;
-"BinaryExpression           ->  ArithmeticExpression1 BinaryExpression' $expressionStatement", "BinaryExpression'          ->  LogicalExpression BinaryExpression' | ComparisonExpression BinaryExpression' | null", "ArithmeticExpression1      ->  ArithmeticExpression2 ArithmeticExpression1'", "ArithmeticExpression1'     ->  Operator1 ArithmeticExpression2 $binaryExpression ArithmeticExpression1' | null", "ArithmeticExpression2      ->  UnaryExpression ArithmeticExpression2'", "ArithmeticExpression2'     ->  Operator2 ArithmeticExpression2 $binaryExpression | null", "UnaryExpression            ->  Operator1 Variable $unaryExpression | Variable | not Variable $unaryExpression", "Variable                   ->  identifier Variable' | literal | leftBracket BinaryExpression rightBracket | Array Variable'", "Variable'                  ->  ArrayMember Variable''' | CallFunc | null", "Variable''                 ->  ArrayMember | null", "Variable'''                ->  CallFunc | null", "LogicalExpression          ->  or ArithmeticExpression1 $logicalExpression | and ArithmeticExpression1 $logicalExpression | congruent ArithmeticExpression1 $binaryExpression", "ComparisonExpression       ->  greater ArithmeticExpression1 $binaryExpression |\n                                  greaterEqual ArithmeticExpression1 $binaryExpression | \n                                  less ArithmeticExpression1 $binaryExpression | \n                                  lessEqual ArithmeticExpression1 $binaryExpression", "Operator1                  ->  plus | minus", "Operator2                  ->  multiply | divide | surplus", // 声明 def id; def id = 1;
+"BinaryExpression           ->  ArithmeticExpression1 BinaryExpression' $expressionStatement", "BinaryExpression'          ->  LogicalExpression BinaryExpression' | ComparisonExpression BinaryExpression' | null", "ArithmeticExpression1      ->  ArithmeticExpression2 ArithmeticExpression1'", "ArithmeticExpression1'     ->  Operator1 ArithmeticExpression2 $binaryExpression ArithmeticExpression1' | null", "ArithmeticExpression2      ->  UnaryExpression ArithmeticExpression2'", "ArithmeticExpression2'     ->  Operator2 ArithmeticExpression2 $binaryExpression | null", "UnaryExpression            ->  Operator1 Variable $unaryExpression | Variable | not Variable $unaryExpression", "Variable                   ->  identifier Variable' | literal | leftBracket BinaryExpression rightBracket | Array Variable'", "Variable'                  ->  ArrayMember Variable''' | CallFunc | null", "Variable''                 ->  ArrayMember | null", "Variable'''                ->  CallFunc | null", "LogicalExpression          ->  or ArithmeticExpression1 $logicalExpression | and ArithmeticExpression1 $logicalExpression | congruent ArithmeticExpression1 $binaryExpression | notEqual ArithmeticExpression1 $binaryExpression", "ComparisonExpression       ->  greater ArithmeticExpression1 $binaryExpression |\n                                  greaterEqual ArithmeticExpression1 $binaryExpression | \n                                  less ArithmeticExpression1 $binaryExpression | \n                                  lessEqual ArithmeticExpression1 $binaryExpression", "Operator1                  ->  plus | minus", "Operator2                  ->  multiply | divide | surplus", // 声明 def id; def id = 1;
 "Defined                    ->  defined identifier Defined'", "Defined'                   ->  equal Value $createVariableDeclaratorInit Defined'' | $createVariableDeclarator null", "Defined''                  ->  comma identifier Defined' | null", // 赋值
 "Assignment                 ->  identifier Assignment'' Assignment'", "Assignment'                ->  equal Value $mergeAssignment $expressionStatement | CallFunc $expressionStatement | null", "Assignment''               ->  ArrayMember | null", "Call                       ->  $createCall leftBracket Call' rightBracket $updateCallInfo", "Call'                      ->  CallParams $mergeCallParam Call'' | null", "Call''                     ->  comma CallParams $mergeCallParam Call'' | null", "CallParams                 ->  BinaryExpression | Function", "CallFunc                   ->  Call CallFunc'", "CallFunc'                  ->  Call CallFunc' | null", "Value                      ->  BinaryExpression | Function | Condition | Circulation | Block", // 数组
 "Array                      ->  leftBrace Array' rightBrace", "Array'                     ->  BinaryExpression $mergeArray Array'' | Function $mergeArray Array'' | null", "Array''                    ->  comma Array''' | null", "Array'''                   ->  BinaryExpression $mergeArray Array'' | Function $mergeArray Array''", "ArrayMember                ->  leftBrace $createMemberExpression BinaryExpression $mergeMember rightBrace ArrayMember'", "ArrayMember'               ->  ArrayMember | null", // 方法声明 func fn(): func fn(args1, args2);
@@ -2668,7 +2686,7 @@ var grammars = ["Sentence                   ->  SingleStatement Semicolon Senten
 "Circulation                ->  For CirculationElse | While CirculationElse", "For                        ->  for leftBracket ForSentence' $mergeForInit SingleSemicolon ForSentence'' $mergeForTest SingleSemicolon ForSentence''' $mergeForUpdate rightBracket Colon SingleBlock  $mergeForBody", "ForSentence'               ->  Defined | Assignment | null", "ForSentence''              ->  BinaryExpression | null", "ForSentence'''             ->  Assignment | null", "While                      ->  while leftBracket BinaryExpression rightBracket $mergeWhileTest Colon SingleBlock $mergeWhileBody", "CirculationElse            ->  Else | null", // 
 "SingleBlock                ->  Block | BinaryExpression | Function | pass | break SingleBlock' $mergeReturn | continue", "SingleBlock'               ->  BinaryExpression | null", // 单终结符
 "Colon                      ->  colon"];
-var terminalSymbols = 'defined|identifier|equal|congruent|semicolon|leftBracket|rightBracket|literal|plus|minus|multiply|divide|surplus|function|begin|end|return|comma|colon|if|elif|else|or|and|not|greater|greaterEqual|less|lessEqual|pass|for|while|break|continue|leftBrace|rightBrace'.split('|');
+var terminalSymbols = 'defined|identifier|equal|congruent|notEqual|semicolon|leftBracket|rightBracket|literal|plus|minus|multiply|divide|surplus|function|begin|end|return|comma|colon|if|elif|else|or|and|not|greater|greaterEqual|less|lessEqual|pass|for|while|break|continue|leftBrace|rightBrace'.split('|');
 var grammar_ll1 = (0,ll1.makeLL1)(grammars, terminalSymbols);
 var startSymbol = grammar_ll1.startSymbol;
 var predictSet = grammar_ll1.predictSet;
@@ -2820,7 +2838,9 @@ var ArrayLiteral = /*#__PURE__*/function (_System2) {
     _defineProperty(_assertThisInitialized(_this2), "__type__", packageType['Array']);
     _defineProperty(_assertThisInitialized(_this2), "append", new SystemFunction('append', function (args) {
       var _this2$array;
-      (_this2$array = _this2.array).push.apply(_this2$array, _toConsumableArray(args));
+      (_this2$array = _this2.array).push.apply(_this2$array, _toConsumableArray(args.map(function (arg) {
+        return package_assign(arg);
+      })));
       return _assertThisInitialized(_this2);
     }));
     _defineProperty(_assertThisInitialized(_this2), "pop", new SystemFunction('pop', function () {
@@ -2871,6 +2891,10 @@ var SystemFunction = /*#__PURE__*/function (_System4) {
   }
   return _createClass(SystemFunction);
 }(System);
+function package_assign(pack) {
+  if (!(pack !== null && pack !== void 0 && pack.__type__)) return pack;
+  if (pack.__type__ === packageType['Literal']) return new Literal(false, pack.value);else return pack;
+}
 function getValue(pack) {
   if (Array.isArray(pack)) {
     var _pack = _slicedToArray(pack, 2),
@@ -3164,6 +3188,8 @@ var Compiler = /*#__PURE__*/function () {
                 return unlock(getValue(this.handle(left, null, scope))) <= unlock(getValue(this.handle(right, null, scope)));
               case '==':
                 return unlock(getValue(this.handle(left, null, scope))) === unlock(getValue(this.handle(right, null, scope)));
+              case 'not=':
+                return unlock(getValue(this.handle(left, null, scope))) !== unlock(getValue(this.handle(right, null, scope)));
             }
           }
         case AstType.LogicalExpression:

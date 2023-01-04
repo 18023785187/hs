@@ -272,6 +272,14 @@ export function _congruent({ value, source, location }) {
     operator: value,
   }
 }
+export function _notEqual({ value, source, location }) {
+  return {
+    type: AstType['NotEqualExpression'],
+    source,
+    location,
+    operator: value,
+  }
+}
 export function _not({ value, source, location }) {
   return {
     type: AstType['NotExpression'],
