@@ -31,6 +31,10 @@ export class ArrayLiteral extends System {
     return this
   })
 
+  shift = new SystemFunction('shift', (args) => {
+    return this.array.shift()
+  })
+
   pop = new SystemFunction('pop', () => {
     return this.array.pop()
   })
@@ -43,17 +47,35 @@ export class ArrayLiteral extends System {
   copy = new SystemFunction('copy', () => {
     return new ArrayLiteral([...this.array])
   })
+
+  concat = new SystemFunction('concat', (args) => {
+    const newArray = [...this.array]
+    args.forEach(arg => {
+      let arr
+      if ((arr = getValue(arg))?.__type__ === packageType['Array']) {
+        arr.array.length && newArray.push(...arr.array.map(item => assign(item)))
+      } else if((arg)?.__type__ === packageType['Array']) {
+        arg.array.length && newArray.push(...arg.array.map(item => assign(item)))
+      } else {
+        newArray.push(assign(arg))
+      }
+    })
+    return new ArrayLiteral(newArray)
+  })
+
+  slice = new SystemFunction('slice', (args) => {
+    return new ArrayLiteral([...this.array.slice(...args.map(arg => getValue(arg)))])
+  })
 }
 
 export class Function extends System {
   __type__ = packageType['Function'];
-  constructor(name, params, body, scope) {
+  constructor(name, params, body) {
     super();
     this.name = name;
     this.params = params.map(param => param.name);
     this.length = params.length;
     this.body = body;
-    this.scope = scope;
   }
 }
 
@@ -67,8 +89,8 @@ export class SystemFunction extends System {
 }
 
 export function assign(pack) {
-  if(!pack?.__type__) return pack
-  if(pack.__type__ === packageType['Literal']) return new Literal(false, pack.value)
+  if (!pack?.__type__) return pack
+  if (pack.__type__ === packageType['Literal']) return new Literal(false, pack.value)
   else return pack
 }
 

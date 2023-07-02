@@ -2843,6 +2843,9 @@ var ArrayLiteral = /*#__PURE__*/function (_System2) {
       })));
       return _assertThisInitialized(_this2);
     }));
+    _defineProperty(_assertThisInitialized(_this2), "shift", new SystemFunction('shift', function (args) {
+      return _this2.array.shift();
+    }));
     _defineProperty(_assertThisInitialized(_this2), "pop", new SystemFunction('pop', function () {
       return _this2.array.pop();
     }));
@@ -2853,6 +2856,31 @@ var ArrayLiteral = /*#__PURE__*/function (_System2) {
     _defineProperty(_assertThisInitialized(_this2), "copy", new SystemFunction('copy', function () {
       return new ArrayLiteral(_toConsumableArray(_this2.array));
     }));
+    _defineProperty(_assertThisInitialized(_this2), "concat", new SystemFunction('concat', function (args) {
+      var newArray = _toConsumableArray(_this2.array);
+      args.forEach(function (arg) {
+        var _arr;
+        var arr;
+        if (((_arr = arr = getValue(arg)) === null || _arr === void 0 ? void 0 : _arr.__type__) === packageType['Array']) {
+          arr.array.length && newArray.push.apply(newArray, _toConsumableArray(arr.array.map(function (item) {
+            return package_assign(item);
+          })));
+        } else if ((arg === null || arg === void 0 ? void 0 : arg.__type__) === packageType['Array']) {
+          arg.array.length && newArray.push.apply(newArray, _toConsumableArray(arg.array.map(function (item) {
+            return package_assign(item);
+          })));
+        } else {
+          newArray.push(package_assign(arg));
+        }
+      });
+      return new ArrayLiteral(newArray);
+    }));
+    _defineProperty(_assertThisInitialized(_this2), "slice", new SystemFunction('slice', function (args) {
+      var _this2$array2;
+      return new ArrayLiteral(_toConsumableArray((_this2$array2 = _this2.array).slice.apply(_this2$array2, _toConsumableArray(args.map(function (arg) {
+        return getValue(arg);
+      })))));
+    }));
     _this2.array = array;
     return _this2;
   }
@@ -2861,7 +2889,7 @@ var ArrayLiteral = /*#__PURE__*/function (_System2) {
 var Function = /*#__PURE__*/function (_System3) {
   _inherits(Function, _System3);
   var _super3 = _createSuper(Function);
-  function Function(name, params, body, scope) {
+  function Function(name, params, body) {
     var _this3;
     _classCallCheck(this, Function);
     _this3 = _super3.call(this);
@@ -2872,7 +2900,6 @@ var Function = /*#__PURE__*/function (_System3) {
     });
     _this3.length = params.length;
     _this3.body = body;
-    _this3.scope = scope;
     return _this3;
   }
   return _createClass(Function);
@@ -3268,7 +3295,7 @@ var Compiler = /*#__PURE__*/function () {
               }
             });
             if (!scope.has(_name)) {
-              scope.set(_name, new Function(_name, params, _body2, new Scope(scope)));
+              scope.set(_name, new Function(_name, params, _body2));
               return scope.get(_name);
             } else {
               error(SyntaxError, "Identifier '".concat(_name, "' has already been declared"), _id.source, _id.location);
@@ -3304,9 +3331,10 @@ var Compiler = /*#__PURE__*/function () {
                   return _this2.handle(arg, null, scope);
                 }), root, scope]);
               }
+              var funcScope = new Scope(scope);
               func.params.forEach(function (param, i) {
                 if (args[i] == null) {
-                  func.scope.setCur(param, new Literal(false, null));
+                  funcScope.setCur(param, new Literal(false, null));
                 } else {
                   var _result6 = _this2.handle(args[i], null, scope);
                   var arg;
@@ -3321,11 +3349,11 @@ var Compiler = /*#__PURE__*/function () {
                   } else {
                     arg = new Literal(false, _result6);
                   }
-                  func.scope.setCur(param, arg);
+                  funcScope.setCur(param, arg);
                 }
               });
-              var fnReturn = this.handle(func.body, func.scope, func.scope);
-              func.scope.clear();
+              var fnReturn = this.handle(func.body, funcScope, funcScope, funcScope);
+              funcScope.clear();
               return unlock(fnReturn);
             }
           }

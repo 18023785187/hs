@@ -227,7 +227,7 @@ export default class Compiler {
           }
         });
         if (!scope.has(name)) {
-          scope.set(name, new Function(name, params, body, new Scope(scope)));
+          scope.set(name, new Function(name, params, body));
           return scope.get(name);
         } else {
           error(SyntaxError, `Identifier '${name}' has already been declared`, id.source, id.location);
@@ -258,9 +258,10 @@ export default class Compiler {
             return func.fn.apply(null, [args.map(arg => this.handle(arg, null, scope)), root, scope]);
           }
 
+          const funcScope = new Scope(scope)
           func.params.forEach((param, i) => {
             if (args[i] == null) {
-              func.scope.setCur(param, new Literal(false, null));
+              funcScope.setCur(param, new Literal(false, null));
             } else {
               const result = this.handle(args[i], null, scope);
               let arg;
@@ -275,12 +276,12 @@ export default class Compiler {
               } else {
                 arg = new Literal(false, result);
               }
-              func.scope.setCur(param, arg);
+              funcScope.setCur(param, arg);
             }
           });
 
-          const fnReturn = this.handle(func.body, func.scope, func.scope);
-          func.scope.clear();
+          const fnReturn = this.handle(func.body, funcScope, funcScope, funcScope);
+          funcScope.clear();
           return unlock(fnReturn);
         }
       }

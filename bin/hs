@@ -7,10 +7,10 @@ const hs = new Compiler()
 
 const filePath = process.argv.slice(2)[0]
 
-if(!filePath) return console.log(`v${require('../package.json').version}`)
+if (!filePath) return console.log(`v${require('../package.json').version}`)
 
 fs.readFile(path.join(process.cwd(), filePath), 'utf-8', (err, data) => {
-  if(err) {
+  if (err) {
     throw err
   }
   hs.compile(data);
