@@ -15,7 +15,7 @@ hs 使用 LL1 文法实现，特点是类似 python 的语法。
 
 或 `npm i hym-script -g` 下载项目，直接运行 `hs xxx.hs`。
 
-注意：请使用 v14 以上的 node 版本。
+注意：请使用 v14.18.2 以上的 node 版本运行。
 
 #### 特性
 
